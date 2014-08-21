@@ -137,7 +137,7 @@ public:
 			throw SqlException(result, sqlite3_errmsg(connection.data()));
 		}
 
-		m_stmt = std::move(localHandle); // Initially nullptr?
+		m_stmt = std::move(localHandle);
 	}
 
 	void bind(const int index, const int value)
