@@ -22,7 +22,17 @@
 
 
 namespace sqlite {
-	
+
+class Uncopyable
+{
+public:
+	Uncopyable() {}
+	~Uncopyable() {}
+
+private:
+	Uncopyable(const Uncopyable&);
+	Uncopyable& operator=(const Uncopyable&);
+};
 
 /*
 =================
@@ -31,12 +41,12 @@ namespace sqlite {
 */
 struct SqlException 
 {
-	int error;	// sqlite error code
-	std::string message;
+	int errorCode;	// sqlite error code
+	std::string errorMessage;
 
 	SqlException( const int result, const char* msg ) :
-		error	(result),
-		message	(msg)
+		errorCode    (result),
+		errorMessage (msg)
 	{
 	}
 };
@@ -97,9 +107,24 @@ public:
 		return m_db.get();		
 	}	
 
-	long long int rowid()
+	long long int lastRowId()
 	{
 		return sqlite3_last_insert_rowid(m_db.get());
+	}
+
+	void beginTransaction()
+	{
+		execute("BEGIN");
+	}
+
+	void rollbackTransaction()
+	{
+		execute("ROLLBACK");
+	}
+
+	void commitTransaction()
+	{
+		execute("COMMIT");
 	}
 
 private:
@@ -145,6 +170,18 @@ public:
 		assert(m_stmt);
 
 		const int result = sqlite3_bind_int(m_stmt.get(), index, value);
+
+		if (result != SQLITE_OK)
+		{
+			throw SqlException(result, sqlite3_errmsg(sqlite3_db_handle(m_stmt.get())));
+		}
+	}
+
+	void bind(const int index, const long long int value)
+	{
+		assert(m_stmt);
+
+		const int result = sqlite3_bind_int64(m_stmt.get(), index, value);
 
 		if (result != SQLITE_OK)
 		{
@@ -213,6 +250,7 @@ public:
 
 		// Look at boost optional
 	}
+	
 	
 	// More getters
 
