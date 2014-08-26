@@ -23,16 +23,6 @@
 
 namespace sqlite {
 
-class Uncopyable
-{
-public:
-	Uncopyable() {}
-	~Uncopyable() {}
-
-private:
-	Uncopyable(const Uncopyable&);
-	Uncopyable& operator=(const Uncopyable&);
-};
 
 /*
 =================
@@ -192,10 +182,9 @@ public:
 	void bind(const int index, const std::string& value)
 	{
 		assert(m_stmt);
-
-		const int result = sqlite3_bind_text(m_stmt.get(), index, value.c_str(), value.size(), SQLITE_TRANSIENT);  // This relies on string being present at execution
-		// SQLITE_TRANSIENT will make a copy instead
-
+				
+		const int result = sqlite3_bind_text(m_stmt.get(), index, value.c_str(), value.size(), SQLITE_TRANSIENT);
+		
 		if (result != SQLITE_OK)
 		{
 			throw SqlException(result, sqlite3_errmsg(sqlite3_db_handle(m_stmt.get())));
@@ -248,7 +237,7 @@ public:
 
 		return str ? str : std::string();
 
-		// Look at boost optional
+		// Look at boost::optional
 	}
 
 	std::string getBlob(const int column)
@@ -258,12 +247,9 @@ public:
 		dataSize = sqlite3_column_bytes(m_stmt.get(), column);
 
 		const char* data = reinterpret_cast<const char*>(sqlite3_column_blob(m_stmt.get(), column));
-
+		
 		return data ? std::string(data, dataSize) : std::string();
 	}
-	
-	
-	// More getters
 
 private:
 	std::unique_ptr<sqlite3_stmt, int(*)(sqlite3_stmt*)> m_stmt;
