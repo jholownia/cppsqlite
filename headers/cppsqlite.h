@@ -36,7 +36,7 @@ private:
 
 /*
 =================
- Exception
+ SqlException
 =================
 */
 struct SqlException 
@@ -219,7 +219,7 @@ public:
 		else
 		{
 			throw SqlException(result, sqlite3_errmsg(sqlite3_db_handle(m_stmt.get())));
-		}	
+		}			
 	}
 
 	void reset()
@@ -249,6 +249,17 @@ public:
 		return str ? str : std::string();
 
 		// Look at boost optional
+	}
+
+	std::string getBlob(const int column)
+	{		
+		int dataSize = 0;
+
+		dataSize = sqlite3_column_bytes(m_stmt.get(), column);
+
+		const char* data = reinterpret_cast<const char*>(sqlite3_column_blob(m_stmt.get(), column));
+
+		return data ? std::string(data, dataSize) : std::string();
 	}
 	
 	
