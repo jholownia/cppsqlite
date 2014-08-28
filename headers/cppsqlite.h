@@ -21,6 +21,16 @@
 #include "../sqlite/sqlite3.h"
 
 
+// Enable foreign keys support
+#ifdef SQLITE_OMIT_FOREIGN_KEY
+#undef SQLITE_OMIT_FOREIGN_KEY
+#endif
+
+#ifdef SQLITE_OMIT_TRIGGER
+#undef SQLITE_OMIT_TRIGGER
+#endif
+
+
 namespace sqlite {
 
 
@@ -92,7 +102,7 @@ public:
 		}
 	}
 
-	sqlite3* data() const 
+	sqlite3* ptr() const 
 	{ 
 		return m_db.get();		
 	}	
@@ -116,7 +126,7 @@ public:
 	{
 		execute("COMMIT");
 	}
-
+	
 private:
 	std::unique_ptr<sqlite3, int(*)(sqlite3*)> m_db;
 };
@@ -143,13 +153,13 @@ public:
 	{
 		sqlite3_stmt* rawStmt;
 
-		const int result = sqlite3_prepare_v2(connection.data(), statement.c_str(), statement.size(), &rawStmt, nullptr);
+		const int result = sqlite3_prepare_v2(connection.ptr(), statement.c_str(), statement.size(), &rawStmt, nullptr);
 
 		auto localHandle = std::unique_ptr<sqlite3_stmt, int(*)(sqlite3_stmt*)>(rawStmt, sqlite3_finalize);
 
 		if (result != SQLITE_OK)
 		{
-			throw SqlException(result, sqlite3_errmsg(connection.data()));
+			throw SqlException(result, sqlite3_errmsg(connection.ptr()));
 		}
 
 		m_stmt = std::move(localHandle);
@@ -263,7 +273,18 @@ private:
 */
 class Transaction 
 {
-		
+		Transaction(Connection& c)
+		{
+			
+		}
+
+		~Transaction()
+		{
+
+		}
+
+private:
+
 };
 
 } // namespace sqlite
