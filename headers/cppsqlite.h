@@ -266,25 +266,4 @@ private:
 };
 
 
-/*
-=================
- Transaction
-=================
-*/
-class Transaction 
-{
-		Transaction(Connection& c)
-		{
-			
-		}
-
-		~Transaction()
-		{
-
-		}
-
-private:
-
-};
-
 } // namespace sqlite
