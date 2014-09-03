@@ -165,9 +165,11 @@ public:
 		m_stmt = std::move(localHandle);
 	}
 
-	void bind(const int index, const int value)
+	void bind(int index, const int value)
 	{
 		assert(m_stmt);
+
+		++index; // sqlite uses 1-based indexing for bind, we change it to 0-based for consistency
 
 		const int result = sqlite3_bind_int(m_stmt.get(), index, value);
 
@@ -177,9 +179,11 @@ public:
 		}
 	}
 
-	void bind(const int index, const long long int value)
+	void bind(int index, const long long int value)
 	{
 		assert(m_stmt);
+
+		++index;
 
 		const int result = sqlite3_bind_int64(m_stmt.get(), index, value);
 
@@ -189,9 +193,11 @@ public:
 		}
 	}
 
-	void bind(const int index, const std::string& value)
+	void bind(int index, const std::string& value)
 	{
 		assert(m_stmt);
+
+		++index;
 				
 		const int result = sqlite3_bind_text(m_stmt.get(), index, value.c_str(), value.size(), SQLITE_TRANSIENT);
 		
